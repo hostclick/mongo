@@ -1,0 +1,48 @@
+---
+# This role deploys the mongod processes and sets up the replication set.
+
+- name: create data directory for mongodb
+  file: path={{ mongod_datadir_prefix }}/mongo state=directory owner=mongod group=mongod
+
+- name: create journal directory for mongodb
+  file: path={{ mongod_datadir_prefix }}/mongo/journal state=directory owner=mongod group=mongod
+  when: mongod_journal_device|lower != 'none'
+  
+- name: mount journal with noatime and acl in a separate device
+  mount: name={{ mongod_datadir_prefix }}/mongo/journal src={{ mongod_journal_device }} state=mounted opts=defaults,noatime fstype=ext4 passno=1 dump=2
+  when: mongod_journal_device|lower != 'none'
+
+- name: Create the mongodb configuration file
+  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+  notify: restart mongod
+  tags: mongod_replication
+
+- name: Copy the keyfile for authentication
+  copy: src=secret dest={{ mongod_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
+  notify: restart mongod
+
+- name: Start the mongodb service
+  service: name=mongod state=started enabled=yes
+  when: mongo_fork is undefined or mongo_fork|lower != 'false'
+  
+- name: Stop the mongodb service
+  service: name=mongod state=stopped enabled=no
+  when: mongo_fork is defined and mongo_fork|lower == 'false'
+
+- name: Create the file to initialize the mongod replica set
+  template: src=repset_init.j2 dest=/tmp/repset_init.js
+  when: mongod_replication and mongod_repl_master == ansible_hostname
+  tags: mongod_replication
+
+- name: Pause for a while
+  pause: seconds=40
+  when: mongod_replication
+  tags: mongod_replication
+
+- name: Initialize the replication set
+  shell: /usr/bin/mongo --host {{ ansible_hostname }} --port "{{ mongod_port }}" /tmp/repset_init.js
+  when: mongod_replication and mongod_repl_master == ansible_hostname
+  tags: mongod_replication
+  
+- include: tuning.yml
+  when: is_docker_container is not defined or is_docker_container|bool == false

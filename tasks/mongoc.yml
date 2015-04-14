@@ -1,0 +1,24 @@
+- name: create data directory for mongodb
+  file: path={{ mongod_datadir_prefix }}/mongo state=directory owner=mongod group=mongod
+
+- name: Create the mongodb configuration file
+  template: src=mongoc.conf.j2 dest=/etc/mongod.conf
+  notify: restart mongod
+
+- name: Copy the keyfile for authentication
+  copy: src=secret dest={{ mongod_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
+  notify: restart mongod
+
+- name: Start the mongodb service
+  service: name=mongod state=started enabled=yes
+  when: mongo_fork is undefined or mongo_fork|lower != 'false'
+
+- name: Stop the mongodb service
+  service: name=mongod state=stopped enabled=no
+  when: mongo_fork is defined and mongo_fork|lower == 'false'
+
+- name: Pause for a while
+  pause: seconds=20
+  
+- include: tuning.yml
+  when: is_docker_container is not defined or is_docker_container|bool == false

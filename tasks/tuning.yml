@@ -1,0 +1,21 @@
+- name: reduce tcp keepalive time
+  sysctl: name="net.ipv4.tcp_keepalive_time" value=300 state=present reload=yes
+  
+- name: change read ahead value for data storage on physical servers
+  shell: blockdev --setra 32 /dev/{{ item }}
+  with_items: mongod_ra_devices
+  when: mongod_ra_devices|lower != 'none'
+  tags: rclocal
+
+- name: persist read ahead value
+  lineinfile:
+    dest=/etc/rc.local
+    state=present
+    regexp="^blockdev --setra 32 /dev/{{ item }}"
+    line="blockdev --setra 32 /dev/{{ item }}"
+    insertafter=EOF
+    follow=yes
+  with_items: mongod_ra_devices
+  when: mongod_ra_devices|lower != 'none'
+  notify: restart mongod
+  tags: rclocal

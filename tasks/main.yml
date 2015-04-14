@@ -1,0 +1,23 @@
+- action: setup
+  tags: mongo
+
+- name: Create the repository for 10Gen
+  copy: src=mongodb.repo dest=/etc/yum.repos.d/mongodb.repo
+  tags: mongo
+
+- name: Install mongodb packages
+  yum: name={{ item }} state=present
+  with_items: mongod_packages
+  tags: mongo
+   
+- include: mongod.yml
+  when: mongo_type|lower == 'mongod' or mongo_type|lower == 'arbitrator'
+  tags: mongo
+
+- include: mongoc.yml
+  when: mongo_type|lower == 'mongoc'
+  tags: mongo
+
+- include: mongos.yml
+  when: mongo_type|lower == 'mongos'
+  tags: mongo

@@ -1,0 +1,5 @@
+thp_commands:
+  - command: /sys/kernel/mm/redhat_transparent_hugepage/enabled
+    value: 'never'
+  - command: /sys/kernel/mm/redhat_transparent_hugepage/defrag
+    value: 'never'

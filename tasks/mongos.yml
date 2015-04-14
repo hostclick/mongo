@@ -1,0 +1,35 @@
+---
+- name: Create the mongos startup file
+  template: src=mongos.j2 dest=/etc/init.d/mongos mode=0655
+  tags: mongos
+
+- name: Create the mongos configuration file
+  template: src=mongos.conf.j2 dest=/etc/mongos.conf
+  notify: restart mongos
+  tags: mongos
+
+- name: Copy the keyfile for authentication
+  copy: src=secret dest={{ mongos_datadir_prefix }}/secret owner={{ mongo_user }} group={{ mongo_group }} mode=0400
+  tags: mongos
+  
+- name: Disable mongod service
+  service: name=mongod state=stopped enabled=no
+  tags: mongos
+  
+- name: Enable and start mongos daemon
+  service: name=mongos state=started enabled=yes
+  when: mongo_fork is undefined or mongo_fork|lower != 'false'
+  tags: mongos
+  
+- name: Stop the mongodb service
+  service: name=mongos state=stopped enabled=no
+  when: mongo_fork is defined and mongo_fork|lower == 'false'
+
+- name: pause
+  pause: seconds=20
+
+#- name: copy the file for shard test 
+#  template: src=testsharding.j2 dest=/tmp/testsharding.js
+
+#- name: copy the file enable  sharding 
+#  template: src=enablesharding.j2 dest=/tmp/enablesharding.js

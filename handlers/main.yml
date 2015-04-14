@@ -1,0 +1,7 @@
+- name: restart mongod
+  service: name=mongod state=restarted
+  when: mongo_fork is undefined or mongo_fork|lower != 'false'
+
+- name: restart mongos
+  service: name=mongos state=restarted
+  when: mongo_fork is undefined or mongo_fork|lower != 'false'

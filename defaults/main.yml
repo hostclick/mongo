@@ -1,0 +1,33 @@
+mongod_packages:
+  - mongodb-org
+
+mongod_iface: eth1
+
+mongo_fork: "true"
+
+#Defaults to eth1 or 0.0.0.0
+#mongod_bind_ip:
+
+mongod_datadir_prefix: /var/lib
+mongod_port: 27017
+
+mongod_replication: false
+mongod_repl_servers: []
+mongod_repl_arbitrators: []
+mongod_repl_master: "localhost"
+mongod_replset_name: rs0
+mongod_journal_device: none
+
+mongos_datadir_prefix: /var/lib
+mongos_port: 27017
+mongos_chunk_size: 1
+
+mongoc_port: 27017
+mongoc_servers: []
+
+mongo_user: mongod
+mongo_group: mongod
+
+mongod_ra_devices: none
+
+mongo_type: none

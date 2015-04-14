@@ -1,0 +1,91 @@
+# mongod.conf
+
+#where to log
+logpath=/var/log/mongodb/mongod.log
+
+logappend=true
+
+# fork and run in background
+fork={{ mongo_fork }}
+
+port={{ mongod_port }}
+
+dbpath={{ mongod_datadir_prefix }}/mongo
+
+configsvr=true
+
+# Enable REST interface
+rest = true
+
+# location of pidfile
+pidfilepath=/var/run/mongodb/mongod.pid
+
+{% if mongod_bind_ip is not defined %}
+{% if ansible_eth1 is defined %}
+{% if ansible_eth1.ipv4 is defined %}
+{% if ansible_eth1.ipv4.address is defined %}
+# Listen to local interface only. Comment out to listen on all interfaces. 
+bind_ip={{ ansible_eth1.ipv4.address }}
+{% else %}
+# Listen to local interface only. Comment out to listen on all interfaces. 
+#bind_ip={{ ansible_eth1.ipv4.address }}
+{% endif %}
+{% else %}
+# Listen to local interface only. Comment out to listen on all interfaces. 
+#bind_ip={{ ansible_eth1.ipv4.address }}
+{% endif %}
+{% else %}
+# Listen to local interface only. Comment out to listen on all interfaces. 
+#bind_ip={{ ansible_eth1.ipv4.address }}
+{% endif %}
+{% else %}
+# Listen to local interface only. Comment out to listen on all interfaces. 
+bind_ip={{ mongod_bind_ip }}
+{% endif %}
+
+# Disables write-ahead journaling
+# nojournal=true
+
+# Enables periodic logging of CPU utilization and I/O wait
+#cpu=true
+
+# Turn on/off security.  Off is currently the default
+#noauth=true
+#auth=true
+
+# Verbose logging output.
+#verbose=true
+
+# Inspect all client data for validity on receipt (useful for
+# developing drivers)
+#objcheck=true
+
+# Enable db quota management
+#quota=true
+
+# Set oplogging level where n is
+#   0=off (default)
+#   1=W
+#   2=R
+#   3=both
+#   7=W+some reads
+#diaglog=0
+
+# Ignore query hints
+#nohints=true
+
+# Disable the HTTP interface (Defaults to localhost:27018).
+#nohttpinterface=true
+
+# Turns off server-side scripting.  This will result in greatly limited
+# functionality
+#noscripting=true
+
+# Turns off table scans.  Any query that would do a table scan fails.
+#notablescan=true
+
+# Disable data file preallocation.
+#noprealloc=true
+
+# Specify .ns file size for new databases.
+# nssize=<size>

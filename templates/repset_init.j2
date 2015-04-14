@@ -1,0 +1,11 @@
+rs.initiate({_id: "{{ mongod_replset_name }}", members: [{_id: 0, host: "{{ mongod_repl_master }}:{{ mongod_port }}" }]})
+sleep(13000)
+{% for host in mongod_repl_servers %}
+rs.add("{{ host }}:{{ mongod_port }}")
+sleep(8000)
+{% endfor %}
+{% for host in mongod_repl_arbitrators %}
+rs.addArb("{{ host }}:{{ mongod_port }}")
+sleep(8000)
+{% endfor %}
+printjson(rs.status())
