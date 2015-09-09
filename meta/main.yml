@@ -10,4 +10,5 @@ galaxy_info:
       - 6
   categories:
     - database:nosql
-dependencies: []
+dependencies:
+  - dynamic_groups

@@ -1,4 +1,6 @@
-mongod_packages:
+mongo_version: 3
+
+mongo_packages:
   - mongodb-org
 
 mongod_iface: eth1

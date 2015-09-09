@@ -1,13 +1,20 @@
-- action: setup
+- name: Create the repository for MongoDB 3
+  copy: src=mongodb-org-3.0.repo dest=/etc/yum.repos.d/mongodb-org-3.0.repo
+  when: "{{ mongo_version | version_compare('3', '>=') }}"
   tags: mongo
-
-- name: Create the repository for 10Gen
-  copy: src=mongodb.repo dest=/etc/yum.repos.d/mongodb.repo
+  
+- name: Create the repository for MongoDB 2.6
+  copy: src=mongodb-org-2.6.repo dest=/etc/yum.repos.d/mongodb-org-2.6.repo
+  when: "{{ mongo_version | version_compare('2.6', '==') }}"
   tags: mongo
-
+  
+- name: Ensure older repo definition is absent
+  file: path=/etc/yum.repos.d/mongodb.repo state=absent
+  tags: mongo  
+ 
 - name: Install mongodb packages
   yum: name={{ item }} state=present
-  with_items: mongod_packages
+  with_items: mongo_packages
   tags: mongo
    
 - include: mongod.yml

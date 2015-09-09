@@ -1,11 +1,12 @@
 - name: reduce tcp keepalive time
   sysctl: name="net.ipv4.tcp_keepalive_time" value=300 state=present reload=yes
-  
+
+#TODO: run only when necessary
 - name: change read ahead value for data storage on physical servers
   shell: blockdev --setra 32 /dev/{{ item }}
   with_items: mongod_ra_devices
   when: mongod_ra_devices|lower != 'none'
-  tags: rclocal
+  changed_when: false  
 
 - name: persist read ahead value
   lineinfile:
@@ -16,6 +17,4 @@
     insertafter=EOF
     follow=yes
   with_items: mongod_ra_devices
-  when: mongod_ra_devices|lower != 'none'
-  notify: restart mongod
-  tags: rclocal
+  when: mongod_ra_devices|lower != 'none' 

@@ -1,0 +1,4 @@
+127.0.0.1 localhost
+{% for host in groups['mongo_cluster_members'] %}
+{{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}	{{ hostvars[host].hostname }}
+{% endfor %}

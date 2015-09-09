@@ -15,11 +15,10 @@
 - name: Create the mongodb configuration file
   template: src=mongod.conf.j2 dest=/etc/mongod.conf
   notify: restart mongod
-  tags: mongod_replication
 
-- name: Copy the keyfile for authentication
-  copy: src=secret dest={{ mongod_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
-  notify: restart mongod
+#- name: Copy the keyfile for authentication
+#  copy: src=secret dest={{ mongod_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
+#  notify: restart mongod
 
 - name: Start the mongodb service
   service: name=mongod state=started enabled=yes
@@ -32,17 +31,14 @@
 - name: Create the file to initialize the mongod replica set
   template: src=repset_init.j2 dest=/tmp/repset_init.js
   when: mongod_replication and mongod_repl_master == ansible_hostname
-  tags: mongod_replication
 
 - name: Pause for a while
   pause: seconds=40
   when: mongod_replication
-  tags: mongod_replication
 
 - name: Initialize the replication set
   shell: /usr/bin/mongo --host {{ ansible_hostname }} --port "{{ mongod_port }}" /tmp/repset_init.js
   when: mongod_replication and mongod_repl_master == ansible_hostname
-  tags: mongod_replication
   
 - include: tuning.yml
   when: is_docker_container is not defined or is_docker_container|bool == false
