@@ -14,7 +14,7 @@
  
 - name: Install mongodb packages
   yum: name={{ item }} state=present
-  with_items: mongo_packages
+  with_items: "{{ mongo_packages }}"
   tags: mongo
    
 - include: mongod.yml
